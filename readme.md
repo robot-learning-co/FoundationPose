@@ -1,3 +1,36 @@
+# TRLC's Notes
+## Installation
+Download all network weights from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i?usp=sharing) and put them under the folder `weights/`. For the refiner, you will need `2023-10-28-18-33-37`. For scorer, you will need `2024-01-11-20-02-45`.
+```
+cd docker && docker build -t trlc/foundationpose .
+```
+To run:
+```
+cd docker && bash docker/run_container.sh
+```
+If it's the first time you launch the container, you need to build extensions. Run this command inside the Docker container:
+```
+bash build_all.sh
+```
+## Custom objects
+Make sure the .obj file is exported in m instead of mm (needs to be changed in Autodesk Fusion). Use Meshlab to texture the mesh file.
+
+## System Setup
+Tested on a Lenovo ThinkPad P1 Gen 7 with:
+- RTX 4070
+- Ubuntu 22.04
+
+Follow [this instruction](https://www.cherryservers.com/blog/install-cuda-ubuntu) to install CUDA.
+
+For RealSense follow [this instruction](https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md) and record with [this](https://github.com/NVlabs/FoundationPose/issues/44#issuecomment-2048141043).
+
+
+## Troubleshooting
+- Newer CUDA: [this](https://github.com/NVlabs/FoundationPose/issues/27)
+- Unreasonable results: [this](https://github.com/NVlabs/FoundationPose/issues/44#issuecomment-2048141043) and [this](https://github.com/030422Lee/FoundationPose_manual)
+
+
+
 # FoundationPose: Unified 6D Pose Estimation and Tracking of Novel Objects
 [[Paper]](https://arxiv.org/abs/2312.08344) [[Website]](https://nvlabs.github.io/FoundationPose/)
 
