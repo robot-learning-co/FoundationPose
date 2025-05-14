@@ -1,6 +1,6 @@
 from typing import Union
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, validator
     
@@ -19,7 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
     
 scorer = ScorePredictor()
 refiner = PoseRefinePredictor()
@@ -27,6 +26,7 @@ glctx = dr.RasterizeCudaContext()
 
 @app.post("/pose")
 async def estimate_pose(
+    request: Request, 
     mesh_obj: UploadFile = File(...),
     mesh_mtl: UploadFile = File(...),
     mesh_texture: UploadFile = File(...),
@@ -35,6 +35,10 @@ async def estimate_pose(
     mask: UploadFile = File(...),
     cam_K: str = Form(...),
 ):
+    client_host = request.client.host
+    user_agent = request.headers.get("user-agent", "unknown")
+    referer = request.headers.get("referer", "none")
+    
     _mesh_obj = await mesh_obj.read()
     _mesh_mtl = await mesh_mtl.read()
     _mesh_texture = await mesh_texture.read()
@@ -45,7 +49,8 @@ async def estimate_pose(
     
     # Create a directory with the current timestamp
     timestamp = str(int(time.time() * 1000))
-    output_dir = os.path.join(f"{os.getcwd()}/data/", timestamp)
+    readable_time = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(int(timestamp) // 1000))
+    output_dir = os.path.join(f"{os.getcwd()}/data/", f"{readable_time}")
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "mesh"), exist_ok=True)
     os.makedirs(os.path.join(output_dir, "scene", "rgb"), exist_ok=True)
@@ -53,6 +58,10 @@ async def estimate_pose(
     os.makedirs(os.path.join(output_dir, "scene", "masks"), exist_ok=True)
     
     # Save the files to the output directory
+    with open(os.path.join(output_dir, "request_meta.txt"), "w") as f:
+        f.write(f"Client IP: {client_host}\n")
+        f.write(f"User-Agent: {user_agent}\n")
+        f.write(f"Referer: {referer}\n")
     with open(os.path.join(output_dir, "mesh", f"{mesh_obj.filename}"), "wb") as f:
         f.write(_mesh_obj)
     with open(os.path.join(output_dir, "mesh", f"{mesh_mtl.filename}"), "wb") as f:
@@ -116,5 +125,5 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run("server:app",
                 host="0.0.0.0",
-                port=8000,
+                port=80,
                 reload=False)
