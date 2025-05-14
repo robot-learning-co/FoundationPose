@@ -59,11 +59,11 @@ async def estimate_pose(
         f.write(_mesh_mtl)
     with open(os.path.join(output_dir, "mesh", f"{mesh_texture.filename}"), "wb") as f:
         f.write(_mesh_texture)
-    with open(os.path.join(output_dir,"scene" , "rgb", f"{rgb.filename}"), "wb") as f:
+    with open(os.path.join(output_dir,"scene" , "rgb", f"{timestamp}.png"), "wb") as f:
         f.write(_rgb)
-    with open(os.path.join(output_dir, "scene", "depth", f"{depth.filename}"), "wb") as f:
+    with open(os.path.join(output_dir, "scene", "depth", f"{timestamp}.png"), "wb") as f:
         f.write(_depth)
-    with open(os.path.join(output_dir, "scene", "masks", f"{mask.filename}"), "wb") as f:
+    with open(os.path.join(output_dir, "scene", "masks", f"{timestamp}.png"), "wb") as f:
         f.write(_mask)
     
     with open(os.path.join(output_dir, "scene", "cam_K.txt"), "w") as f:
@@ -114,7 +114,7 @@ async def estimate_pose(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("endpoint:app",
+    uvicorn.run("server:app",
                 host="0.0.0.0",
                 port=8000,
                 reload=False)
