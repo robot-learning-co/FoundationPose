@@ -24,7 +24,7 @@ scorer = ScorePredictor()
 refiner = PoseRefinePredictor()
 glctx = dr.RasterizeCudaContext()
 
-@app.post("/pose")
+@app.post("/")
 async def estimate_pose(
     request: Request, 
     mesh_obj: UploadFile = File(...),
